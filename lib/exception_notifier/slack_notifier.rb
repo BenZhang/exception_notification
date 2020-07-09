@@ -55,7 +55,7 @@ module ExceptionNotifier
     def attchs(exception, clean_message, options)
       text, data = information_from_options(exception.class, options)
       backtrace = clean_backtrace(exception) if exception.backtrace
-      fields = fields(clean_message, backtrace, data)
+      fields = fields(clean_message, backtrace, data, options[:env])      
 
       [color: @color, text: text, fields: fields, mrkdwn_in: %w[text fields]]
     end
@@ -88,7 +88,7 @@ module ExceptionNotifier
       [text, data]
     end
 
-    def fields(clean_message, backtrace, data)
+    def fields(clean_message, backtrace, data, env = nil)
       fields = [
         { title: 'Exception', value: clean_message },
         { title: 'Hostname', value: Socket.gethostname }
@@ -97,6 +97,11 @@ module ExceptionNotifier
       if backtrace
         formatted_backtrace = "```#{backtrace.first(@backtrace_lines).join("\n")}```"
         fields << { title: 'Backtrace', value: formatted_backtrace }
+      end
+
+      unless env.nil?
+        keys = env.keys.select { |k| k.upcase == k }
+        fields << { title: 'Headers', value: "```#{keys.map { |k| "#{k}: #{env[k]}" }.join("\n")}```" } if keys.present?
       end
 
       unless data.empty?
