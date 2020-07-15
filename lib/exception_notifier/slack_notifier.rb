@@ -1,4 +1,5 @@
 # frozen_string_literal: true
+require 'action_dispatch'
 
 module ExceptionNotifier
   class SlackNotifier < BaseNotifier
@@ -102,6 +103,8 @@ module ExceptionNotifier
       unless env.nil?
         keys = env.keys.select { |k| k.upcase == k }
         fields << { title: 'Headers', value: "```#{keys.map { |k| "#{k}: #{env[k]}" }.join("\n")}```" } if keys.present?
+        request = ActionDispatch::Request.new(env)
+        fields << { title: 'Session', value: "```#{request.session.to_hash.map { |k, v| "#{k}: #{v}"}.join("\n")}```" } if request.session.present?
       end
 
       unless data.empty?
