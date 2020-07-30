@@ -105,6 +105,7 @@ module ExceptionNotifier
         fields << { title: 'Headers', value: "```#{keys.map { |k| "#{k}: #{env[k]}" }.join("\n")}```" } if keys.present?
         request = ActionDispatch::Request.new(env)
         fields << { title: 'Session', value: "```#{request.session.to_hash.map { |k, v| "#{k}: #{v}"}.join("\n")}```" } if request.session.present?
+        fields << { title: 'Parameters', value: "```#{request.filtered_parameters.map { |k, v| "#{k}: #{v}"}.join("\n")}```" } if request.filtered_parameters.present?
       end
 
       unless data.empty?
